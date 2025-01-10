@@ -1,0 +1,7 @@
+DateTable = 
+ADDCOLUMNS(
+    CALENDAR(DATE(2000, 1, 1), DATE(2050, 12, 31)),
+    "Year", YEAR([Date]),
+    "Month", MONTH([Date]),
+    "Day", DAY([Date])
+)

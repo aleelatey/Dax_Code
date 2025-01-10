@@ -1,0 +1,8 @@
+// MarkCahill.com.au
+// 
+// Code to select random data row for Quote of the Day. Returns a value from 0 to the total rows in the data minus one.
+// Add an index column starting from 0 using the Advanced editor in the Quotes table.
+
+RandomNumber = 
+// Non repeating pseudo-random number generator that returns a new quote each day. The quote will be be the same for all users. Implemented to avoid long series of same author.
+        MOD(FORMAT(DATEVALUE(TODAY()),"0") * 16811, [Count of Quotes]) 

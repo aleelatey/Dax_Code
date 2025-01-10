@@ -1,0 +1,121 @@
+Dates = 
+//
+ADDCOLUMNS (
+    ADDCOLUMNS (
+        CALENDAR ( DATE ( 2022, 1, 1 ), DATE ( 2029, 12, 31 ) ),
+        "Year", YEAR ( [Date] ),
+        "CYQuarter", "Q" & FORMAT ( [Date], "Q" ),
+        "Month", FORMAT ( [Date], "MMMM" ),
+        "MonthNumber", MONTH ( [Date] ),
+        "Day", DAY ( [Date] ),
+        "DayOfWeek", FORMAT ( [Date], "dddd" ),
+        "DayOfWeekNumber", // Returns 1 to 7
+           // 16 = Week starts on Saturday, 
+           //  2 = Week starts on Monday, 
+           //  1 = Week starts on Sunday
+           WEEKDAY([Date], 16),
+        "WeekOfYear", WEEKNUM ( [Date] ),
+        "YearMonthNumber", // YYYYMM as Number
+            YEAR ( [Date] ) * 100
+                + MONTH ( [Date] ),
+        "YearMonth", FORMAT ( [Date], "YYYYMM" ),
+        "FiscalQuarter",  // Returns "FYyy/Qq" as text
+            "FY"
+                & RIGHT (
+                    IF (
+                        MONTH ( [Date] ) <= 6,
+                        FORMAT ( YEAR ( [Date] ), "00" ),
+                        FORMAT ( YEAR ( [Date] ) + 1, "00" )
+                    ),
+                    2
+                ) & "/Q"
+                & FORMAT (
+                    SWITCH (
+                        TRUE (),
+                        MONTH ( [Date] ) >= 7
+                            && MONTH ( [Date] ) <= 9, 1,
+                        MONTH ( [Date] ) >= 10, 2,
+                        MONTH ( [Date] ) >= 1
+                            && MONTH ( [Date] ) <= 3, 3,
+                        MONTH ( [Date] ) >= 4
+                            && MONTH ( [Date] ) <= 6, 4
+                    ),
+                    "General Number"
+                ),
+        "FiscalQuarterSort", //Returns yyyyq as number
+            IF ( MONTH ( [Date] ) <= 6, YEAR ( [Date] ), YEAR ( [Date] ) + 1 ) * 100
+                + SWITCH (
+                    TRUE (),
+                    MONTH ( [Date] ) >= 7
+                        && MONTH ( [Date] ) <= 9, 1,
+                    MONTH ( [Date] ) >= 10, 2,
+                    MONTH ( [Date] ) >= 1
+                        && MONTH ( [Date] ) <= 3, 3,
+                    MONTH ( [Date] ) >= 4
+                        && MONTH ( [Date] ) <= 6, 4
+                ),
+        "WeekEnd",
+            // This calculates the upcoming Friday for the given Date
+            IF (
+                WEEKDAY ( [Date], 1 ) = 7,
+                [Date] + 6,
+                [Date] + 6
+                    - WEEKDAY ( [Date], 1 )
+            )
+    ),
+    "WE", "WE " & FORMAT ( [WeekEnd], "DD-MM" ),
+    "WESort",
+        // Format yyyymmdd as a number
+        YEAR ( [WeekEnd] ) * 10000
+            + MONTH ( [WeekEnd] ) * 100
+            + DAY ( [WeekEnd] ),
+    "WE Date", FORMAT ( [WeekEnd], "DD/MM/YYYY" ),
+    "FiscalYear",
+        IF (
+            MONTH ( [Date] ) <= 6,
+            FORMAT ( YEAR ( [Date] ), "0000" ),
+            FORMAT ( YEAR ( [Date] ) + 1, "0000" )
+        ),
+    "FiscalWeek",
+    // Where each week ends on a Friday and the Fiscal year starts on 1 July.
+        IF (
+            1
+                + WEEKNUM (
+                    [Date]
+                        + ( 5 - WEEKDAY ( [Date], 2 ) )
+                        + 7
+                            * ( WEEKDAY ( [Date], 2 ) > 5 ),
+                    2
+                )
+                - WEEKNUM (
+                    DATE ( YEAR ( [Date] ) - IF ( MONTH ( [Date] ) < 7, 1, 0 ), 7, 1 ),
+                    2
+                ) < 1,
+            53
+                + WEEKNUM (
+                    [Date]
+                        + ( 5 - WEEKDAY ( [Date], 2 ) )
+                        + 7
+                            * ( WEEKDAY ( [Date], 2 ) > 5 ),
+                    2
+                )
+                - WEEKNUM (
+                    DATE ( YEAR ( [Date] ) - IF ( MONTH ( [Date] ) < 7, 1, 0 ), 7, 1 ),
+                    2
+                ),
+            1
+                + WEEKNUM (
+                    [Date]
+                        + ( 5 - WEEKDAY ( [Date], 2 ) )
+                        + 7
+                            * ( WEEKDAY ( [Date], 2 ) > 5 ),
+                    2
+                )
+                - WEEKNUM (
+                    DATE ( YEAR ( [Date] ) - IF ( MONTH ( [Date] ) < 7, 1, 0 ), 7, 1 ),
+                    2
+                )
+        ),
+    "MonthYear", // Returns "MMM-YY"
+    FORMAT ( [Date], "MMM" ) & "-" & FORMAT ( [Date], "YY" )
+)

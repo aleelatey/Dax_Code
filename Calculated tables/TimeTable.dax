@@ -1,0 +1,13 @@
+TimeTable = 
+ADDCOLUMNS(
+    GENERATESERIES(TIMEVALUE("00:00:00"),TIMEVALUE("23:59:59"),1/1440),
+    "Time",format([Value],"hh:mm"),
+    "Hour", hour([Value]),
+    "Minute", MOD([Value], 60),
+    "TwoHourly", INT(hour([Value])/2),
+    "ThreeHourly", INT(hour([Value])/3),
+    "FourHourly", INT(hour([Value])/4),
+    "SixHourly", INT(hour([Value])/6),
+    "EightHourly", INT(hour([Value])/8),
+    "TwelveHourly", INT(hour([Value])/2)
+)
